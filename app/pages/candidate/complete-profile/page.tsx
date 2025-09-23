@@ -172,12 +172,13 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
       const candidateDataWithUserId = {
         success: true,
         data: {
+           id: candidate?.id || 0,
           ...formData,
           userId,
         },
       };
       await dispatch(updateCandidateAsync(candidateDataWithUserId));
-      setIsEditing(true); // Disable editing mode after saving
+      setIsEditing(true); 
       console.log("Candidate updated", candidateDataWithUserId);
       toast.success("Details Updated successfully!", {
         position: "top-right" as ToastPosition,
