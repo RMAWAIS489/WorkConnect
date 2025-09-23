@@ -17,6 +17,7 @@ import TextAreaField from "@/app/components/ui/textarea";
 import { jobTypeOptions, statusOptions } from "@/app/components/ui/constants";
 import Dropdown from "@/app/components/ui/dropdown";
 import Card from "@/app/components/ui/card";
+import axios from "axios";
 
 
 const JobsPage = () => {
@@ -92,9 +93,19 @@ useEffect(() => {
         .then(() => {
           toast.success("Job deleted successfully");
         })
-        .catch((err: any) => {
-          toast.error("Error deleting job: " + err.message);
-        });
+        .catch((err: unknown) => {
+  let message = "Failed to delete job";
+
+  if (axios.isAxiosError(err)) {
+  
+    message = err.response?.data?.message || err.message;
+  } else if (err instanceof Error) {
+    
+    message = err.message;
+  }
+
+  toast.error("Error deleting job: " + message);
+});
     }
   };
   if (loading) {

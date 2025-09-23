@@ -197,19 +197,19 @@ export const deleteUserAsync = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.delete(`http://localhost:5000/users/${id}`, {
+      await axios.delete(`http://localhost:5000/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return id;
-    }catch (error: unknown) {
-  if (axios.isAxiosError(error)) {
-    return rejectWithValue(error.response?.data || "Failed to delete user");
-  }
-  return rejectWithValue("Failed to delete user");
-}
-
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || "Failed to delete user");
+      }
+      return rejectWithValue("Failed to delete user");
+    }
   }
 );
+
 
 const authSlice = createSlice({
   name: "auth",

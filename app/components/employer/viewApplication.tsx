@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
@@ -48,11 +48,31 @@ export default function ViewApplications() {
     dispatch(fetchJobAppAsync({ employer_id: userId, authToken }));
   }, [dispatch]);
 
+  const filterApplications = useCallback((title: string, status: string) => {
+    let filtered = jobApplications;
+
+    if (title !== "All") {
+      filtered = filtered.filter((job) => job.jobTitle === title);
+    }
+
+    if (status !== "All") {
+      filtered = filtered
+        .map((job) => ({
+          ...job,
+          applications: job.applications.filter((app) => app.status === status),
+        }))
+        .filter((job) => job.applications.length > 0);
+    }
+
+    setFilteredApplications(filtered);
+  }, [jobApplications]);
+
+  // Apply filters whenever relevant state changes
   useEffect(() => {
     if (jobApplications.length > 0) {
       filterApplications(filterJobTitle, filterStatus);
     }
-  }, [jobApplications, filterJobTitle, filterStatus]);
+  }, [jobApplications, filterJobTitle, filterStatus, filterApplications]);
 
   const handleJobTitleFilterChange = (title: string) => {
     setFilterJobTitle(title);
@@ -62,23 +82,7 @@ export default function ViewApplications() {
     setFilterStatus(status);
   };
 
-  const filterApplications = (title: string, status: string) => {
-    let filtered = jobApplications;
-    if (title !== "All") {
-      filtered = filtered.filter((job) => job.jobTitle === title);
-    }
-    if (status !== "All") {
-      filtered = filtered
-        .map((job) => ({
-          ...job,
-          applications: job.applications.filter(
-            (app) => app.status === status
-          ),
-        }))
-        .filter((job) => job.applications.length > 0); 
-    }
-    setFilteredApplications(filtered);
-  };
+
 
   const handleResumeDownload = (resumeUrl: string) => {
     if (resumeUrl) {
