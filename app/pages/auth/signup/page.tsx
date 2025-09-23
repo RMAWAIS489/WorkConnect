@@ -10,6 +10,8 @@ import { Eye, EyeOff } from "lucide-react";
 import InputField from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
+import { DecodedToken } from "@/app/lib/authUtils";
 enum UserRole {
   employer = "employer",
   candidate = "candidate",
@@ -27,87 +29,80 @@ export default function SignUp() {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setUser({ ...user, [e.target.name]: e.target.value });
   };
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  try {
-    const response = await dispatch(addUserAsync(user)).unwrap();
-    console.log("Signup Successful:", response);
+    e.preventDefault();
+    try {
+      const response = await dispatch(addUserAsync(user)).unwrap();
+      console.log("Signup Successful:", response);
 
-    setUser({ name: "", email: "", password: "", role: UserRole.candidate });
+      setUser({ name: "", email: "", password: "", role: UserRole.candidate });
 
-    const decodedToken: any = jwtDecode(response.token);
-    console.log("Decoded Signup Token:", decodedToken);
+      const decodedToken: DecodedToken = jwtDecode(response.token);
+      console.log("Decoded Signup Token:", decodedToken);
 
-    dispatch(setUserRole(decodedToken.role));
-    localStorage.setItem("role", decodedToken.role);
-    localStorage.setItem("authToken", response.token);
+      dispatch(setUserRole(decodedToken.role));
+      localStorage.setItem("role", decodedToken.role);
+      localStorage.setItem("authToken", response.token);
 
-    toast.success("Signup successful!", {
-      position: "top-right" as ToastPosition,
-      autoClose: 3000,
-    });
-
-    // ✅ Redirect based on role (same as login)
-    if (decodedToken.role === "employer") {
-      router.push("/pages/employer/dashboard");
-    } else if (decodedToken.role === "admin") {
-      router.push("/pages/admin/dashboard");
-    } else if (decodedToken.role === "candidate") {
-      router.push("/pages/candidate");
-    } else {
-      console.error("Unknown role:", decodedToken.role);
-    }
-  } catch (err: any) {
-    console.error(err);
-    if (err.response && err.response.status === 409) {
-      toast.error(err.response.data.message || "User with this email already exists!", {
+      toast.success("Signup successful!", {
         position: "top-right" as ToastPosition,
         autoClose: 3000,
       });
-    } else {
-      toast.error("An error occurred. Please try again.", {
-        position: "top-right" as ToastPosition,
-        autoClose: 3000,
-      });
-    }
-  }
-};
 
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   try {
-  //     await dispatch(addUserAsync(user)).unwrap();
-  //     toast.success("SignUp successful!", {
-  //       position: "top-right" as ToastPosition,
-  //       autoClose: 3000,
-  //     });
-  //     router.push("/pages/signin");
-  //     setUser({ name: "", email: "", password: "", role: UserRole.candidate });
-  //   } catch (err: any) {
-  //     console.error(err);
-  //     if (err.response && err.response.status === 409) {
-  //       toast.error(err.response.data.message || "User with this email already exists!", {
-  //         position: "top-right" as ToastPosition,
-  //         autoClose: 3000,
-  //       });
-  //     } else {
-  //       toast.error("An error occurred. Please try again.", {
-  //         position: "top-right" as ToastPosition,
-  //         autoClose: 3000,
-  //       });
-  //     }
-  //   }
-  // };
+      // ✅ Redirect based on role (same as login)
+      if (decodedToken.role === "employer") {
+        router.push("/pages/employer/dashboard");
+      } else if (decodedToken.role === "admin") {
+        router.push("/pages/admin/dashboard");
+      } else if (decodedToken.role === "candidate") {
+        router.push("/pages/candidate");
+      } else {
+        console.error("Unknown role:", decodedToken.role);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 409) {
+          const message =
+            err.response.data?.message ||
+            "User with this email already exists!";
+          setError(message); // ✅ update error state
+          toast.error(message, {
+            position: "top-right" as ToastPosition,
+            autoClose: 3000,
+          });
+        } else {
+          setError("An error occurred. Please try again."); // ✅
+          toast.error("An error occurred. Please try again.", {
+            position: "top-right" as ToastPosition,
+            autoClose: 3000,
+          });
+        }
+      } else {
+        setError("Unexpected error occurred."); // ✅
+        toast.error("Unexpected error occurred.", {
+          position: "top-right" as ToastPosition,
+          autoClose: 3000,
+        });
+      }
+    }
+  };
+
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500">
       <form
         onSubmit={handleSubmit}
         className="flex flex-col gap-4 bg-white p-8 w-96 rounded-2xl shadow-lg"
       >
-        <h2 className="text-2xl font-bold text-center text-gray-800">Sign Up</h2>
+        <h2 className="text-2xl font-bold text-center text-gray-800">
+          Sign Up
+        </h2>
         <InputField
           label="Name"
           name="name"
@@ -131,13 +126,13 @@ export default function SignUp() {
         <div className="relative">
           <InputField
             label="Password"
-            name ="password"
+            name="password"
             type={showPassword ? "text" : "password"}
             placeholder="Enter your Password"
             value={user.password}
             onChange={handleChange}
-           className="w-full mt-1 bg-white p-2 border rounded-lg focus-within:border-black"
-           required={true}
+            className="w-full mt-1 bg-white p-2 border rounded-lg focus-within:border-black"
+            required={true}
           />
           <button
             type="button"
@@ -163,10 +158,15 @@ export default function SignUp() {
             </select>
           </div>
         </div>
-        <Button type="submit" variant="primary" size="md" isLoading={false}
-        className="!rounded-full">
-  Sign Up
-</Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="md"
+          isLoading={false}
+          className="!rounded-full"
+        >
+          Sign Up
+        </Button>
         <p className="text-center text-gray-600">
           Already have an account?{" "}
           <Link href="/pages/auth/signin">

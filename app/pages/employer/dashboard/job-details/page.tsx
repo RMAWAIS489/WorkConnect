@@ -4,6 +4,7 @@ import { getUserIdFromToken } from "@/app/lib/authUtils";
 import {
   deleteJobAsync,
   fetchJobsAsync,
+  Job,
   jobUpdateAsync,
 } from "@/app/redux/jobs/jobSlice";
 import { AppDispatch, RootState } from "@/app/redux/store";
@@ -24,32 +25,33 @@ const JobsPage = () => {
     (state: RootState) => state.jobs
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedJob, setSelectedJob] = useState<any | null>(null);
-  const [updatedJob, setUpdatedJob] = useState<any>({
+  
+  const [updatedJob, setUpdatedJob] = useState<Job>({
+    id:0,
     title: "",
     description: "",
     company_name: "",
     location: "",
     salary_range: "",
-    Job_type: "",
+    job_type: "",
     skills_required: "",
     employment_status: "",
     application_deadline: "",
   });
 
-  const formatDate = (dateString: Date) => {
-    const date = new Date(dateString);
-    return date.toISOString().split("T")[0]; 
-  };
+ const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toISOString().split("T")[0];
+};
 
-  const handleEditClick = (job: any) => {
-    setSelectedJob(job); 
+  const handleEditClick = (job: Job) => {
+   
     setUpdatedJob(job);
     setIsModalOpen(true);
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | any>
+     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setUpdatedJob({
       ...updatedJob,
@@ -70,31 +72,15 @@ const JobsPage = () => {
         alert("Error updating job: " + err.message);
       });
   };
+useEffect(() => {
+  const userId = getUserIdFromToken();
+  if (!userId) {
+    alert("User not authenticated");
+    return;
+  }
+  dispatch(fetchJobsAsync(userId));
+}, [dispatch]); // ✅ keep it simple
 
-  useEffect(() => {
-    const userId = getUserIdFromToken();
-    if (!userId) {
-      alert("User not authenticated");
-      return;
-    }
-    dispatch(fetchJobsAsync(userId))
-      .then(() => {
-        toast.success("Job updated successfully");
-        const currentJobs = [...jobs];
-        const index = currentJobs.findIndex((job) => job.id === updatedJob.id);
-        if (index !== -1) {
-          currentJobs[index] = updatedJob;
-        }
-        dispatch({ type: "jobs/setJobs", payload: currentJobs });
-        const userId = getUserIdFromToken();
-        dispatch(fetchJobsAsync(userId));
-
-        setIsModalOpen(false);
-      })
-      .catch((err: any) => {
-        alert("Error updating job: " + err.message);
-      });
-  }, [dispatch]);
 
   useEffect(() => {
     console.log("Updated Jobs:", jobs); 
@@ -127,7 +113,8 @@ const JobsPage = () => {
 
           {jobs.length === 0 ? (
             <p className="text-center text-lg text-gray-500">
-              You haven't posted any jobs yet. Start by creating a job listing!
+             {"You haven't posted any jobs yet. Start by creating a job listing!"}
+
             </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

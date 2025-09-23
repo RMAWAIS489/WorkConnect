@@ -1,7 +1,8 @@
+import { DecodedToken } from "@/app/lib/authUtils";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-interface Job {
+export interface Job {
   id: number;
   title: string;
   description: string;
@@ -18,7 +19,7 @@ interface JobState {
   loading: boolean;
   error: string | null;
   totalActiveJobs: number;
-  totalJobs: number; // ✅ total jobs
+  totalJobs: number;
   activeJobs: number;
 }
 
@@ -32,7 +33,7 @@ const initialState: JobState = {
 };
 interface JobResponse {
   success: boolean;
-  data: Job[]; // job data returned after successful creation
+  data: Job[];
 }
 
 export const createJobAsync = createAsyncThunk(
@@ -53,33 +54,31 @@ export const createJobAsync = createAsyncThunk(
       console.log("API Response:", response.data);
 
       return response.data.job as Job;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Job creation failed");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || "Job creation failed");
+      }
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
 export const fetchJobsAsync = createAsyncThunk(
   "jobs/fetchJobs",
-  async (userId: number, { rejectWithValue }) => {
-    // Accept userId as an argument
+  async (userId: number | null, { rejectWithValue }) => {
     try {
       const authToken = localStorage.getItem("token");
       if (!authToken) {
         return rejectWithValue("User not authenticated");
       }
 
-      // Decode the JWT token
-      const decodedToken: any = jwtDecode(authToken);
+      const decodedToken: DecodedToken = jwtDecode(authToken);
       console.log("Decoded Token:", decodedToken);
 
-      // Check if the 'userId' exists in the decoded token
       if (!userId) {
         return rejectWithValue("User ID is missing in token");
       }
 
       console.log("Extracted User ID:", userId);
-
-      // Make the API call using the userId
       const response = await axios.get(
         `http://localhost:5000/jobs/fetch/${userId}`,
         {
@@ -90,11 +89,12 @@ export const fetchJobsAsync = createAsyncThunk(
       );
 
       console.log("API Response:", response.data);
-
-      // Assuming response.data is of type JobResponse
       return response.data as JobResponse;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch jobs");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || "Failed to fetch jobs");
+      }
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
@@ -106,7 +106,7 @@ export const totalActiveJobsAsync = createAsyncThunk(
       if (!authToken) {
         return rejectWithValue("User not authenticated");
       }
-      const decodedToken: any = jwtDecode(authToken);
+      const decodedToken: DecodedToken = jwtDecode(authToken);
       console.log("Decoded Token:", decodedToken);
       if (!userId) {
         return rejectWithValue("User ID is missing in token");
@@ -122,29 +122,21 @@ export const totalActiveJobsAsync = createAsyncThunk(
       );
       console.log("API Response:", response.data);
       return response.data.totalActiveJobs as number;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch jobs");
-    }
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to fetch jobs");
+  }
+  return rejectWithValue("Failed to fetch jobs");
+}
+
   }
 );
 
 export const jobUpdateAsync = createAsyncThunk(
   "jobs/updateJob",
-  async (
-    job: {
-      id: string;
-      title: string;
-      description: string;
-      company_name: string;
-      location: string;
-      salary_range: string;
-      skills_required: string;
-      application_deadline: string;
-    },
-    { rejectWithValue }
-  ) => {
+  async (job: Job, { rejectWithValue }) => {
     try {
-      const authToken = localStorage.getItem("token"); // Get auth token
+      const authToken = localStorage.getItem("token");
 
       if (!authToken) {
         return rejectWithValue({ message: "Unauthorized: No token found" });
@@ -155,17 +147,20 @@ export const jobUpdateAsync = createAsyncThunk(
         job,
         {
           headers: {
-            Authorization: `Bearer ${authToken}`, // Add Authorization header
+            Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
         }
       );
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || { message: "Something went wrong" }
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data || { message: "Something went wrong" }
+        );
+      }
+      return rejectWithValue({ message: "Something went wrong" });
     }
   }
 );
@@ -177,19 +172,20 @@ export const deleteJobAsync = createAsyncThunk(
       if (!authToken) {
         return rejectWithValue("User not authenticated");
       }
-      await axios.delete(
-        `http://localhost:5000/jobs/delete/${jobId}`, // Backend API endpoint
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      return jobId; // Job ID return kar raha hai jo delete hui
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(error.response?.data || "Failed to delete job");
+      await axios.delete(`http://localhost:5000/jobs/delete/${jobId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return jobId;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(error.response?.data || "Failed to delete job");
+      }
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Failed to delete job");
     }
   }
 );
@@ -205,14 +201,12 @@ export const searchJobsAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
 
-      // Query parameters add karna
       const queryParams = new URLSearchParams();
       if (title) queryParams.append("title", title);
       if (location) queryParams.append("location", location);
 
       console.log("Searching jobs with:", { title, location });
 
-      // API call with search parameters
       const response = await axios.get(
         `http://localhost:5000/jobs/all/data?${queryParams.toString()}`,
         {
@@ -225,8 +219,11 @@ export const searchJobsAsync = createAsyncThunk(
       console.log("API Response:", response.data);
 
       return response.data as JobResponse;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to search jobs");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || "Failed to search jobs");
+      }
+      return rejectWithValue("Failed to search jobs");
     }
   }
 );
@@ -256,10 +253,13 @@ export const updateEmploymentStatusAsync = createAsyncThunk(
       );
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to update employment status"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data || "Failed to update employment status"
+        );
+      }
+      return rejectWithValue("Failed to update employment status");
     }
   }
 );
@@ -285,10 +285,13 @@ export const fetchJobsStatsAsync = createAsyncThunk(
         totalJobs: response.data.totalJobs,
         activeJobs: response.data.activeJobs,
       };
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch jobs stats"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(
+          error.response?.data || "Failed to fetch jobs stats"
+        );
+      }
+      return rejectWithValue("Failed to fetch jobs stats");
     }
   }
 );
@@ -298,9 +301,9 @@ const jobSlice = createSlice({
   initialState,
   reducers: {
     setJobs: (state, action) => {
-      state.jobs = action.payload; // Manually update jobs array
+      state.jobs = action.payload;
     },
-  }, // Other reducers if needed
+  },
   extraReducers: (builder) => {
     builder
       .addCase(createJobAsync.pending, (state) => {
@@ -356,7 +359,7 @@ const jobSlice = createSlice({
       })
       .addCase(deleteJobAsync.fulfilled, (state, action) => {
         state.loading = false;
-        state.jobs = state.jobs.filter((job) => job.id !== action.payload); // Job Redux state se hata do
+        state.jobs = state.jobs.filter((job) => job.id !== action.payload); 
       })
       .addCase(deleteJobAsync.rejected, (state, action) => {
         state.loading = false;
@@ -371,7 +374,7 @@ const jobSlice = createSlice({
         (state, action: PayloadAction<JobResponse>) => {
           console.log("Search Jobs Payload:", action.payload);
           state.loading = false;
-          state.jobs = action.payload.data; // Search results ko state mein store karein
+          state.jobs = action.payload.data;
         }
       )
       .addCase(searchJobsAsync.rejected, (state, action) => {
@@ -384,10 +387,10 @@ const jobSlice = createSlice({
       })
       .addCase(updateEmploymentStatusAsync.fulfilled, (state, action) => {
         state.loading = false;
-        const updatedJob = action.payload.data; // Assuming the response returns updated job data
+        const updatedJob = action.payload.data; 
         const index = state.jobs.findIndex((job) => job.id === updatedJob.id);
         if (index !== -1) {
-          state.jobs[index] = updatedJob; // Update the job in the state
+          state.jobs[index] = updatedJob; 
         }
       })
       .addCase(updateEmploymentStatusAsync.rejected, (state, action) => {
@@ -401,7 +404,7 @@ const jobSlice = createSlice({
       .addCase(totalActiveJobsAsync.fulfilled, (state, action) => {
         console.log("Total Active Jobs:", action.payload);
         state.loading = false;
-        state.totalActiveJobs = action.payload; // Store the active jobs count
+        state.totalActiveJobs = action.payload; 
       })
       .addCase(totalActiveJobsAsync.rejected, (state, action) => {
         state.loading = false;

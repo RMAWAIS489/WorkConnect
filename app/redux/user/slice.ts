@@ -1,3 +1,4 @@
+import { DecodedToken } from "@/app/lib/authUtils";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -6,7 +7,7 @@ export interface UserListItem {
   name: string;
   email: string;
   role: string;
-  createdAt: string; // ISO date string, frontend pe format karna easy hoga
+  createdAt: string; 
 }
 interface User {
   name?: string;
@@ -39,10 +40,14 @@ export const fetchUsersAsync = createAsyncThunk(
       const response = await axios.get("http://localhost:5000/users/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data.users; // backend response -> { message, users }
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to fetch users");
-    }
+      return response.data.users; 
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to fetch users");
+  }
+  return rejectWithValue("Failed to fetch users");
+}
+
   }
 );
 export const addUserAsync = createAsyncThunk(
@@ -59,8 +64,8 @@ export const addUserAsync = createAsyncThunk(
         }
       );
 
-      // ✅ Decode token from backend response
-      const decodedToken: any = jwtDecode(response.data.token);
+     
+      const decodedToken: DecodedToken = jwtDecode(response.data.token);
       console.log("Decoded Signup Token:", decodedToken);
 
       return {
@@ -71,9 +76,13 @@ export const addUserAsync = createAsyncThunk(
         },
         token: response.data.token,
       };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Signup failed");
-    }
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Signup failed");
+  }
+  return rejectWithValue("Signup failed");
+}
+
   }
 );
 
@@ -91,7 +100,7 @@ export const loginUserAsync = createAsyncThunk(
         }
       );
 
-      const decodedToken: any = jwtDecode(response.data.token);
+      const decodedToken: DecodedToken = jwtDecode(response.data.token);
       console.log("Decoded Token:", decodedToken);
 
       return {
@@ -102,9 +111,13 @@ export const loginUserAsync = createAsyncThunk(
         },
         token: response.data.token,
       };
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Login failed");
-    }
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Login failed");
+  }
+  return rejectWithValue("Login failed");
+}
+
   }
 );
 export const changePasswordAsync = createAsyncThunk(
@@ -124,15 +137,17 @@ export const changePasswordAsync = createAsyncThunk(
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to change password"
-      );
-    }
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to change password");
+  }
+  return rejectWithValue("Failed to change password");
+}
+
   }
 );
 
-// ** Update Email **
+
 export const updateEmailAsync = createAsyncThunk(
   "auth/updateEmail",
   async ({ newEmail }: { newEmail: string }, { rejectWithValue }) => {
@@ -144,9 +159,13 @@ export const updateEmailAsync = createAsyncThunk(
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to update email");
-    }
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to update email");
+  }
+  return rejectWithValue("Failed to update email");
+}
+
   }
 );
 export const deleteAccountAsync = createAsyncThunk(
@@ -164,11 +183,13 @@ export const deleteAccountAsync = createAsyncThunk(
       );
 
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to delete account"
-      );
-    }
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to delete account");
+  }
+  return rejectWithValue("Failed to delete account");
+}
+
   }
 );
 export const deleteUserAsync = createAsyncThunk(
@@ -179,10 +200,14 @@ export const deleteUserAsync = createAsyncThunk(
       const response = await axios.delete(`http://localhost:5000/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return id; // deleted user ka id wapas bhej rahe hain taake list se hata saken
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || "Failed to delete user");
-    }
+      return id;
+    }catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    return rejectWithValue(error.response?.data || "Failed to delete user");
+  }
+  return rejectWithValue("Failed to delete user");
+}
+
   }
 );
 

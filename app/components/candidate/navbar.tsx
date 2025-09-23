@@ -14,9 +14,9 @@ import {
 } from "react-icons/fa";
 import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
-interface NavbarProps {}
 
-export default function Navbar({}: NavbarProps) {
+
+export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -44,7 +44,7 @@ export default function Navbar({}: NavbarProps) {
     setDropdownOpen(!dropdownOpen);
     if (!dropdownOpen) {
       const userEmail = getemailFromToken();
-      setEmail(userEmail);
+      setEmail(userEmail ?? "");
     }
   };
   const handleLogout = () => {

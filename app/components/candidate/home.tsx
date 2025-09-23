@@ -1,9 +1,9 @@
 "use client";
 import { searchJobsAsync } from "@/app/redux/jobs/jobSlice";
-import { AppDispatch, RootState } from "@/app/redux/store";
+import { AppDispatch } from "@/app/redux/store";
 import { useState } from "react";
 import { FaSearch, FaMapMarkerAlt } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch} from "react-redux";
 import JobListings from "@/app/components/candidate/jobs";
 import InputField from "@/app/components/ui/input"; 
 
@@ -11,7 +11,7 @@ export default function HomePage() {
   const [jobTitle, setJobTitle] = useState("");
   const [location, setLocation] = useState("");
   const dispatch = useDispatch<AppDispatch>();
-  const jobs = useSelector((state: RootState) => state.jobs.jobs);
+  
 
   const handleSearch = () => {
     console.log("Searching for:", jobTitle, location);
@@ -32,14 +32,14 @@ export default function HomePage() {
         name="jobTitle"
           placeholder="Job title, keywords, or company"
           value={jobTitle}
-          onChange={(e:any) => setJobTitle(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setJobTitle(e.target.value)}
           iconBefore={<FaSearch />}
         />
         <InputField
         name="location"
           placeholder="City, state, or zip code"
           value={location}
-          onChange={(e:any) => setLocation(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocation(e.target.value)}
           iconBefore={<FaMapMarkerAlt />}
         />
         <button

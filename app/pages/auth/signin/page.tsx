@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import Link from "next/link";
 import { FaGoogle, FaApple } from "react-icons/fa";
 import { loginUserAsync, setUserRole } from "@/app/redux/user/slice";
@@ -11,6 +12,7 @@ import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import InputField from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
+import { DecodedToken } from "@/app/lib/authUtils";
 
 const SignIn = () => {
   const [user, setUser] = useState({
@@ -40,7 +42,7 @@ const SignIn = () => {
       ).unwrap();
       console.log("Login Successful:", response);
       setUser({ email: "", password: "" });
-      const decodedToken: any = jwtDecode(response.token);
+      const decodedToken: DecodedToken = jwtDecode(response.token);
       console.log("Decoded Token:", decodedToken);
       dispatch(setUserRole(decodedToken.role));
       localStorage.setItem("role", decodedToken.role);
@@ -57,12 +59,21 @@ const SignIn = () => {
       } else {
         console.error("Unknown role:", decodedToken.role);
       }
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Invalid credentials!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        // ✅ Now TypeScript knows it's an AxiosError
+        toast.error(err.response?.data?.message || "Invalid credentials!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } else {
+        // Handle unexpected errors
+        console.error("Unexpected error:", err);
+        toast.error("Something went wrong!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
     }
   };
 
@@ -95,8 +106,8 @@ const SignIn = () => {
             placeholder="Enter your Password"
             value={user.password}
             onChange={handleChange}
-           className="w-full mt-1 bg-white p-2 border rounded-lg focus-within:border-black"
-           required={true}
+            className="w-full mt-1 bg-white p-2 border rounded-lg focus-within:border-black"
+            required={true}
           />
           <button
             type="button"
@@ -126,17 +137,17 @@ const SignIn = () => {
         </Button>
 
         <p className="text-center text-gray-600">
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link href="/pages/auth/signup">
             <button className="text-blue-500 border-b-2 border-transparent dark:hover:text-blue-700 transition-all">
               Sign Up
             </button>
           </Link>
         </p>
+
         <p className="text-center text-gray-500">Or sign in with</p>
         <div className="flex justify-center gap-4">
           <Button
-            
             size="md"
             className="border !rounded-full !bg-white !text-gray-700 "
             beforeIcon={<FaGoogle className="text-red-500 " size={20} />}
@@ -144,7 +155,6 @@ const SignIn = () => {
             Google
           </Button>
           <Button
-            
             size="md"
             className="border !rounded-full !bg-white !text-gray-700 "
             beforeIcon={<FaApple className="text-black" size={20} />}

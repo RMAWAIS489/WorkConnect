@@ -1,10 +1,8 @@
 "use client";
 import { useState } from "react";
 import { motion } from "framer-motion";
-
 import { ToastContainer, ToastPosition, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import EmployerSidebar from "@/app/components/employer/sidebar";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/app/redux/store";
 import { createJobAsync } from "@/app/redux/jobs/jobSlice";
@@ -30,7 +28,7 @@ const JobPostingForm = () => {
     employment_status: "Active",
   });
   const dispatch = useDispatch<AppDispatch>();
-  const handleInputChange = (e: any) => {
+  const handleInputChange = ( e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setJobData((prev) => ({ ...prev, [name]: value }));
   };

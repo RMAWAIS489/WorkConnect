@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
-interface JobApplication {
+export interface JobApplication {
   id: number;
+  applicantName: string;
   job: {
     id: number;
     title: string;
@@ -51,7 +52,7 @@ const initialState: JobAppState = {
   jobApplications: [],
   appliedJobs: [],
   jobApplication: null,
-    totalApplications: 0,  
+  totalApplications: 0,
   loading: false,
   error: null,
 };
@@ -78,9 +79,16 @@ export const createJobAppAsync = createAsyncThunk(
         }
       );
       return response.data.jobApplication;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(error.response?.data || "Failed to apply for job");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to apply for job"
+        );
+      }
+
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
@@ -90,7 +98,7 @@ export const fetchJobAppAsync = createAsyncThunk(
     { employer_id, authToken }: { employer_id: number; authToken: string },
     { rejectWithValue }
   ) => {
-    console.log("Auth Token:", authToken); // Log to verify token is valid
+    console.log("Auth Token:", authToken);
     try {
       const response = await axios.get(
         `http://localhost:5000/jobapplication/fetchApplications`,
@@ -104,11 +112,16 @@ export const fetchJobAppAsync = createAsyncThunk(
         }
       );
       return response.data.jobApplications;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch job applications"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to fetch job applications"
+        );
+      }
+
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
@@ -134,14 +147,19 @@ export const fetchAppliedJobAppsAsync = createAsyncThunk(
         }
       );
 
-      console.log("API Response Data:", response.data); // ✅ Debug API Response
+      console.log("API Response Data:", response.data);
 
       return response.data.appliedJobs;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data); // ✅ Debug API Error Response
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch applied job applications"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to fetch applied job applications"
+        );
+      }
+
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
@@ -159,7 +177,7 @@ export const updateJobAppStatusAsync = createAsyncThunk(
     try {
       const response = await axios.put(
         `http://localhost:5000/jobapplication/updatestatus/${applicationId}`,
-        { status }, // Send status in request body
+        { status },
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -167,38 +185,49 @@ export const updateJobAppStatusAsync = createAsyncThunk(
           },
         }
       );
-      return response.data.data; // Backend se updated job application return hoga
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to update job application status"
-      );
+      return response.data.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to update job application status"
+        );
+      }
+
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
 export const fetchTotalApplicationsAsync = createAsyncThunk<
-  number, // return type
-  void,   // argument type
-  { rejectValue: string } // error type
->(
-  "jobApplication/fetchTotalApplications",
-  async (_, { rejectWithValue }) => {
-    try {
-      const authToken = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/jobapplication/all", {
+  number,
+  void,
+  { rejectValue: string }
+>("jobApplication/fetchTotalApplications", async (_, { rejectWithValue }) => {
+  try {
+    const authToken = localStorage.getItem("token");
+    const response = await axios.get(
+      "http://localhost:5000/jobapplication/all",
+      {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
-      });
+      }
+    );
 
-      // backend response: { success: true, totalApplications: 21 }
-      return response.data.totalApplications as number;
-    } catch (error: any) {
+    return response.data.totalApplications as number;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
       console.error("API Error:", error.response?.data);
-      return rejectWithValue(error.response?.data?.message || "Failed to fetch total applications");
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch total applications"
+      );
     }
+
+    console.error("Unexpected Error:", error);
+    return rejectWithValue("Unexpected error occurred");
   }
-);
+});
 
 const jobAppSlice = createSlice({
   name: "jobApplication",
@@ -289,19 +318,21 @@ const jobAppSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
-       .addCase(fetchTotalApplicationsAsync.pending, (state) => {
+      .addCase(fetchTotalApplicationsAsync.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchTotalApplicationsAsync.fulfilled, (state, action: PayloadAction<number>) => {
-        state.loading = false;
-        state.totalApplications = action.payload;
-      })
+      .addCase(
+        fetchTotalApplicationsAsync.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.loading = false;
+          state.totalApplications = action.payload;
+        }
+      )
       .addCase(fetchTotalApplicationsAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
-
   },
 });
 

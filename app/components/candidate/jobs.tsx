@@ -15,7 +15,7 @@ export default function JobListings() {
   const { jobs, loading, error } = useSelector((state: RootState) => state.jobs);
   
 
-  const handleApplyclick=(jobId:Number)=>{
+  const handleApplyclick=(jobId:number)=>{
     console.log("Apply clicked");
     console.log("the specific jobId is:",jobId)
     router.push(`/pages/candidate/job-applications/${jobId}`)

@@ -43,9 +43,9 @@ export default function ManageJobs() {
     dispatch(fetchJobsAsync(userId));
     dispatch(fetchJobAppAsync({ employer_id: userId, authToken }));
     console.log("jobApplications:", jobApplications);
-  }, [dispatch]);
+  }, [dispatch,, jobApplications]);
   const filteredJobs = jobs.filter(
-    (job: any) => filter === "All" || job.employment_status === filter
+    (job) => filter === "All" || job.employment_status === filter
   );
 
   return (

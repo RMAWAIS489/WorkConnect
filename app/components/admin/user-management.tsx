@@ -3,13 +3,15 @@ import { useState, useEffect } from "react";
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/app/redux/store";
-import { deleteUserAsync, fetchUsersAsync } from "@/app/redux/user/slice";
+import { deleteUserAsync, fetchUsersAsync, UserListItem } from "@/app/redux/user/slice";
+type RoleFilter = "All" | "Candidate" | "Employer" | "Admin";
 
 export default function UserManagement() {
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<"All" | "Candidate" | "Employer" | "Admin">("All");
+ const [roleFilter, setRoleFilter] = useState<RoleFilter>("All");
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
   const [modalType, setModalType] = useState<"view" | "edit" | "delete" | null>(null);
 
   const itemsPerPage = 6;
@@ -29,11 +31,10 @@ export default function UserManagement() {
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  // ✅ Delete
-  const handleDelete = (id: number) => {
-    setSelectedUser({ id });
-    setModalType("delete");
-  };
+ const handleDelete = (user: UserListItem) => {
+  setSelectedUser(user);
+  setModalType("delete");
+};
 
   useEffect(() => {
     dispatch(fetchUsersAsync());
@@ -56,7 +57,7 @@ export default function UserManagement() {
         />
         <select
           value={roleFilter}
-          onChange={(e) => setRoleFilter(e.target.value as any)}
+         onChange={(e) => setRoleFilter(e.target.value as RoleFilter)}
           className="border rounded-lg px-4 py-2 shadow-sm"
         >
           <option value="All">All Roles</option>
@@ -80,7 +81,7 @@ export default function UserManagement() {
                 <th className="p-3">Name</th>
                 <th className="p-3">Email</th>
                 <th className="p-3">Role</th>
-                <th className="p-3">Status</th>
+                
                 <th className="p-3">Joined</th>
                 <th className="p-3 text-center">Actions</th>
               </tr>
@@ -128,7 +129,7 @@ export default function UserManagement() {
                       <FaEdit />
                     </button>
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => handleDelete(user)}
                       className="text-red-500 hover:text-red-700"
                       title="Delete User"
                     >
@@ -179,7 +180,7 @@ export default function UserManagement() {
             <p><b>Name:</b> {selectedUser.name}</p>
             <p><b>Email:</b> {selectedUser.email}</p>
             <p><b>Role:</b> {selectedUser.role}</p>
-            <p><b>Status:</b> {selectedUser.isOnline ? "Online ✅" : "Offline ❌"}</p>
+           
             <button
               onClick={() => setModalType(null)}
               className="mt-4 px-4 py-2 bg-indigo-500 text-white rounded hover:bg-indigo-600"

@@ -2,7 +2,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaEllipsisV, FaFilePdf } from "react-icons/fa";
+import { FaPhone, FaEnvelope, FaMapMarkerAlt,  FaFilePdf } from "react-icons/fa";
 import { fetchCandidateAsync, fetchCandidateResumeAsync } from "@/app/redux/candidate/candidateSlice";
 import { AppDispatch, RootState } from "@/app/redux/store";
 import { getUserIdFromToken } from "@/app/lib/authUtils";
@@ -13,7 +13,7 @@ export default function CandidateProfile() {
   const { candidate } = useSelector((state: RootState) => state.candidate);
   console.log("resp",candidate)
   const [loading, setLoading] = useState(true);
-  const [showOptions, setShowOptions] = useState(false);
+  
   useEffect(() => {
     const userId = getUserIdFromToken();
     if (!userId) return;
@@ -83,7 +83,7 @@ export default function CandidateProfile() {
       </a>
 
       {/* Resume Info */}
-      <span className="text-gray-700 text-sm italic">{candidate.resume_name || "Resume.pdf"}</span>
+      <span className="text-gray-700 text-sm italic">{candidate.resume_link || "Resume.pdf"}</span>
 
       {/* Buttons */}
       <div className="flex gap-4 mt-2">

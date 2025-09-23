@@ -57,7 +57,7 @@ export default function AdminDashboard() {
   const dispatch = useDispatch<AppDispatch>();
   const [selectedYear, setSelectedYear] = useState<number>(2025);
   // Redux state
-  const { candidates, loading, error } = useSelector(
+  const { candidates, loading} = useSelector(
     (state: RootState) => state.candidate
   );
   const { employers, loading: employerLoading } = useSelector(
@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   const {  totalApplications, loading: appLoading } = useSelector(
     (state: RootState) => state.jobApplication
   );
- const { totalJobs, activeJobs, loading: jobsLoading } = useSelector(
+ const {  activeJobs, loading: jobsLoading } = useSelector(
     (state: RootState) => state.jobs
   );
   useEffect(() => {

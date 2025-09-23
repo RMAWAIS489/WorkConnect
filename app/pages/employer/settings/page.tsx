@@ -22,10 +22,10 @@ import { getemailFromToken, getUserIdFromToken } from "@/app/lib/authUtils";
 import { useRouter } from "next/navigation";
 import { Button } from "@/app/components/ui/button";
 import InputField from "@/app/components/ui/input";
-// import EmployerLayout from "@/app/components/employer/employerLayout";
+
 export default function AccountSettings() {
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.users);
+  const { loading} = useSelector((state: RootState) => state.users);
   const [enabled, setEnabled] = useState(false);
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
   const [isEmailModalOpen, setEmailModalOpen] = useState(false);
@@ -56,7 +56,7 @@ export default function AccountSettings() {
         const storedUser = localStorage.getItem("user");
 
         if (storedUser) {
-          let userData = JSON.parse(storedUser);
+          const userData = JSON.parse(storedUser);
 
           if (userData && typeof userData === "object") {
             userData.email = newEmail;
@@ -94,7 +94,7 @@ export default function AccountSettings() {
   };
   useEffect(() => {
     const email = getemailFromToken();
-    setOldEmail(email);
+    setOldEmail(email ?? "");
   }, [isEmailModalOpen]);
   return (
    

@@ -1,5 +1,4 @@
-// candidateSlice.ts
-
+import { DecodedToken } from "@/app/lib/authUtils";
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
@@ -7,9 +6,9 @@ interface ApiResponse<T> {
   success: boolean;
   data: T;
 }
-// Types
+
 interface Candidate {
-  id: number;
+  id?: number;
   userId: number;
   fullname: string;
   contact_number: string;
@@ -72,12 +71,17 @@ export const createCandidateAsync = createAsyncThunk<
       );
 
       return response.data;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to create candidate"
-      );
-    }
+    }  catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    console.error("API Error:", error.response?.data);
+    return rejectWithValue(
+      error.response?.data || "Failed to create candidate"
+    );
+  }
+
+  console.error("Unexpected Error:", error);
+  return rejectWithValue("Unexpected error occurred");
+}
   }
 );
 
@@ -89,7 +93,7 @@ export const fetchCandidateAsync = createAsyncThunk(
       if (!authToken) {
         return rejectWithValue("User not authenticated");
       }
-      const decodedToken: any = jwtDecode(authToken);
+      const decodedToken: DecodedToken = jwtDecode(authToken);
       console.log("Decoded Token2:", decodedToken);
       const userId = decodedToken.userId;
       console.log("Extracted User ID2:", userId);
@@ -104,11 +108,15 @@ export const fetchCandidateAsync = createAsyncThunk(
       );
       console.log("Candidate Data:", response.data.data);
       return response.data.data;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch candidate details"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to fetch candidate details"
+        );
+      }
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error");
     }
   }
 );
@@ -122,7 +130,7 @@ export const updateCandidateAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
 
-      const decodedToken: any = jwtDecode(authToken);
+      const decodedToken: DecodedToken = jwtDecode(authToken);
       const userId: number = decodedToken.userId;
       const response = await axios.put(
         `http://localhost:5000/candidate/information/${userId}`,
@@ -137,11 +145,16 @@ export const updateCandidateAsync = createAsyncThunk(
       console.log("API Sent Data:", updatedCandidateData);
       console.log("API Response:", response.data);
       return response.data;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to update candidate details"
-      );
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        console.error("API Error:", error.response?.data);
+        return rejectWithValue(
+          error.response?.data || "Failed to update candidate details"
+        );
+      }
+
+      console.error("Unexpected Error:", error);
+      return rejectWithValue("Unexpected error occurred");
     }
   }
 );
@@ -163,12 +176,17 @@ export const deleteCandidateAsync = createAsyncThunk(
         }
       );
       return response.data;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to delete candidate details"
-      );
-    }
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    console.error("API Error:", error.response?.data);
+    return rejectWithValue(
+      error.response?.data || "Failed to delete candidate details"
+    );
+  }
+
+  console.error("Unexpected Error:", error);
+  return rejectWithValue("Unexpected error occurred");
+}
   }
 );
 export const fetchCandidateResumeAsync = createAsyncThunk(
@@ -180,7 +198,7 @@ export const fetchCandidateResumeAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
 
-      const decodedToken: any = jwtDecode(authToken);
+      const decodedToken: DecodedToken = jwtDecode(authToken);
       const userId = decodedToken.userId;
 
       const response = await axios.get(
@@ -194,12 +212,17 @@ export const fetchCandidateResumeAsync = createAsyncThunk(
       );
 
       return response.data.resume_link;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch candidate resume"
-      );
-    }
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    console.error("API Error:", error.response?.data);
+    return rejectWithValue(
+      error.response?.data || "Failed to fetch candidate resume"
+    );
+  }
+
+  console.error("Unexpected Error:", error);
+  return rejectWithValue("Unexpected error occurred");
+}
   }
 );
 // ✅ New thunk: fetch all candidates
@@ -224,15 +247,19 @@ export const fetchAllCandidatesAsync = createAsyncThunk(
 
       // ✅ ab response.data.data safe hoga
       return response.data.data;
-    } catch (error: any) {
-      console.error("API Error:", error.response?.data);
-      return rejectWithValue(
-        error.response?.data || "Failed to fetch all candidates"
-      );
-    }
+    } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    console.error("API Error:", error.response?.data);
+    return rejectWithValue(
+      error.response?.data || "Failed to fetch all candidates"
+    );
+  }
+
+  console.error("Unexpected Error:", error);
+  return rejectWithValue("Unexpected error occurred");
+}
   }
 );
-
 
 const candidateSlice = createSlice({
   name: "candidate",
@@ -329,7 +356,8 @@ const candidateSlice = createSlice({
         (state, action: PayloadAction<Candidate[]>) => {
           state.loading = false;
           state.candidates = action.payload;
-        })
+        }
+      )
       .addCase(fetchAllCandidatesAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;

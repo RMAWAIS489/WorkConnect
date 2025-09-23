@@ -51,11 +51,13 @@ export default function CandidateProfile() {
   const { candidate } = useSelector((state: RootState) => state.candidate);
   const [resume, setResume] = useState<File | null>(null);
   const router = useRouter();
-  const handleChange = (e: any) => {
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: any) => {
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (!resume) {
@@ -181,13 +183,17 @@ export default function CandidateProfile() {
         position: "top-right" as ToastPosition,
         autoClose: 3000,
       });
-    } catch (error: any) {
-      console.error("Error saving employer details:", error.message || error);
-      toast.error("Failed to save details. Please try again.", {
-        position: "top-right" as ToastPosition,
-        autoClose: 3000,
-      });
-    }
+    } catch (error: unknown) {
+  if (error instanceof Error) {
+    console.error("Error saving employer details:", error.message);
+  } else {
+    console.error("Unexpected error:", error);
+  }
+  toast.error("Failed to save details. Please try again.", {
+    position: "top-right" as ToastPosition,
+    autoClose: 3000,
+  });
+}
   };
 
   useEffect(() => {

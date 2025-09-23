@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../../redux/store";
 import {
   fetchJobAppAsync,
+  JobApplication,
   updateJobAppStatusAsync,
 } from "@/app/redux/jobApp/jobAppSlice";
 import { getUserIdFromToken } from "@/app/lib/authUtils";
@@ -13,19 +14,24 @@ import * as Select from "@radix-ui/react-select";
 import { Button } from "../ui/button";
 import Dropdown from "../ui/dropdown";
 import { applicationStatusOptions} from "../ui/constants";
-
+interface JobWithApplications {
+  jobTitle: string;
+  jobId: number;
+  applications: JobApplication[];
+  applicationsCount: number;
+}
 export default function ViewApplications() {
   const dispatch = useDispatch<AppDispatch>();
   const { jobApplications } = useSelector(
     (state: RootState) => state.jobApplication
   );
 
-  const [filteredApplications, setFilteredApplications] = useState<any[]>([]);
+  const [filteredApplications, setFilteredApplications] = useState<JobWithApplications[]>([]);
   const [filterJobTitle, setFilterJobTitle] = useState("All");
   const [filterStatus, setFilterStatus] = useState("All");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [selectedApplication, setSelectedApplication] = useState<JobApplication|null>(null);
   const [newStatus, setNewStatus] = useState<string>("");
 
   useEffect(() => {
@@ -66,7 +72,7 @@ export default function ViewApplications() {
         .map((job) => ({
           ...job,
           applications: job.applications.filter(
-            (app: any) => app.status === status
+            (app) => app.status === status
           ),
         }))
         .filter((job) => job.applications.length > 0); 
@@ -85,7 +91,7 @@ export default function ViewApplications() {
     }
   };
 
-  const openModal = (application: any) => {
+  const openModal = (application: JobApplication) => {
     setSelectedApplication(application);
     setNewStatus(application.status);
     setIsModalOpen(true);
@@ -146,7 +152,7 @@ export default function ViewApplications() {
           <tbody>
             {filteredApplications.map((job, jobIndex) => (
               <React.Fragment key={jobIndex}>
-                {job.applications.map((application: any, appIndex: any) => (
+                {job.applications.map((application:JobApplication, appIndex: number) => (
                   <motion.tr
                     key={appIndex}
                     initial={{ opacity: 0 }}
