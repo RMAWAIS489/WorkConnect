@@ -7,8 +7,8 @@ interface ApiResponse<T> {
   data: T;
 }
 
-interface Candidate {
-  id?: number;
+export interface Candidate {
+  id: number;
   userId: number;
   fullname: string;
   contact_number: string;
