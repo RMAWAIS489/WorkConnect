@@ -37,7 +37,7 @@ export const fetchUsersAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/users/all", {
+      const response = await axios.get("https://work-connect-backend-sape.vercel.app/users/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.users; 
@@ -57,7 +57,7 @@ export const addUserAsync = createAsyncThunk(
       console.log("Sending Signup Data to Backend:", user);
 
       const response = await axios.post(
-        "http://localhost:5000/users/register",
+        "https://work-connect-backend-sape.vercel.app/users/register",
         user,
         {
           headers: { "Content-Type": "application/json" },
@@ -93,7 +93,7 @@ export const loginUserAsync = createAsyncThunk(
       console.log("Sending Data to Backend:", user);
 
       const response = await axios.post(
-        "http://localhost:5000/users/login",
+        "https://work-connect-backend-sape.vercel.app/users/login",
         user,
         {
           headers: { "Content-Type": "application/json" },
@@ -132,7 +132,7 @@ export const changePasswordAsync = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "http://localhost:5000/users/change-password",
+        "https://work-connect-backend-sape.vercel.app/users/change-password",
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -154,7 +154,7 @@ export const updateEmailAsync = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "http://localhost:5000/users/update-email",
+        "https://work-connect-backend-sape.vercel.app/users/update-email",
         { newEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -175,7 +175,7 @@ export const deleteAccountAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
 
       const response = await axios.delete(
-        "http://localhost:5000/users/delete-account",
+        "https://work-connect-backend-sape.vercel.app/users/delete-account",
         {
           headers: { Authorization: `Bearer ${token}` },
           data: { userId },
@@ -197,7 +197,7 @@ export const deleteUserAsync = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/users/${id}`, {
+      await axios.delete(`https://work-connect-backend-sape.vercel.app/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return id;
