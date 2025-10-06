@@ -37,7 +37,7 @@ export const fetchUsersAsync = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("https://localhost:5000/users/all", {
+      const response = await axios.get("https://eloquent-nature-production-3df9.up.railway.app/users/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data.users; 
@@ -57,7 +57,7 @@ export const addUserAsync = createAsyncThunk(
       console.log("Sending Signup Data to Backend:", user);
 
       const response = await axios.post(
-        "https://localhost:5000/users/register",
+        "https://eloquent-nature-production-3df9.up.railway.app/users/register",
         user,
         {
           headers: { "Content-Type": "application/json" },
@@ -93,7 +93,7 @@ export const loginUserAsync = createAsyncThunk(
       console.log("Sending Data to Backend:", user);
 
       const response = await axios.post(
-        "https://localhost:5000/users/login",
+        "https://eloquent-nature-production-3df9.up.railway.app/users/login",
         user,
         {
           headers: { "Content-Type": "application/json" },
@@ -132,7 +132,7 @@ export const changePasswordAsync = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "https://localhost:5000/users/change-password",
+        "https://eloquent-nature-production-3df9.up.railway.app/users/change-password",
         { currentPassword, newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -154,7 +154,7 @@ export const updateEmailAsync = createAsyncThunk(
     try {
       const token = localStorage.getItem("token");
       const response = await axios.put(
-        "https://localhost:5000/users/update-email",
+        "https://eloquent-nature-production-3df9.up.railway.app/users/update-email",
         { newEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -175,7 +175,7 @@ export const deleteAccountAsync = createAsyncThunk(
       const token = localStorage.getItem("token");
 
       const response = await axios.delete(
-        "https://localhost:5000/users/delete-account",
+        "https://eloquent-nature-production-3df9.up.railway.app/users/delete-account",
         {
           headers: { Authorization: `Bearer ${token}` },
           data: { userId },
@@ -197,7 +197,7 @@ export const deleteUserAsync = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`https://localhost:5000/users/${id}`, {
+      await axios.delete(`https://eloquent-nature-production-3df9.up.railway.app/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return id;
