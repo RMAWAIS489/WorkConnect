@@ -93,7 +93,7 @@ export const loginUserAsync = createAsyncThunk(
       console.log("Sending Data to Backend:", user);
 
       const response = await axios.post(
-        "https://work-connect-backend.vercel.app/users/login",
+        "http://work-connect-backend.vercel.app/users/login",
         user,
         {
           headers: { "Content-Type": "application/json" },
