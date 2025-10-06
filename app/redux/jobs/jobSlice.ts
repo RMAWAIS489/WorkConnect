@@ -42,7 +42,7 @@ export const createJobAsync = createAsyncThunk(
     try {
       const authToken = localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/jobs/create",
+        "https://eloquent-nature-production-3df9.up.railway.app/jobs/create",
         jobData,
         {
           headers: {
@@ -80,7 +80,7 @@ export const fetchJobsAsync = createAsyncThunk(
 
       console.log("Extracted User ID:", userId);
       const response = await axios.get(
-        `http://localhost:5000/jobs/fetch/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/fetch/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -113,7 +113,7 @@ export const totalActiveJobsAsync = createAsyncThunk(
       }
       console.log("Extracted User ID:", userId);
       const response = await axios.get(
-        `http://localhost:5000/jobs/ActiveJobs/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/ActiveJobs/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -143,7 +143,7 @@ export const jobUpdateAsync = createAsyncThunk(
       }
 
       const response = await axios.put(
-        `http://localhost:5000/jobs/update/${job.id}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/update/${job.id}`,
         job,
         {
           headers: {
@@ -172,7 +172,7 @@ export const deleteJobAsync = createAsyncThunk(
       if (!authToken) {
         return rejectWithValue("User not authenticated");
       }
-      await axios.delete(`http://localhost:5000/jobs/delete/${jobId}`, {
+      await axios.delete(`https://eloquent-nature-production-3df9.up.railway.app/jobs/delete/${jobId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
@@ -208,7 +208,7 @@ export const searchJobsAsync = createAsyncThunk(
       console.log("Searching jobs with:", { title, location });
 
       const response = await axios.get(
-        `http://localhost:5000/jobs/all/data?${queryParams.toString()}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -242,7 +242,7 @@ export const updateEmploymentStatusAsync = createAsyncThunk(
       }
 
       const response = await axios.put(
-        `http://localhost:5000/jobs/update/employment-status/${jobId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/update/employment-status/${jobId}`,
         { employment_status: employmentStatus },
         {
           headers: {
@@ -273,7 +273,7 @@ export const fetchJobsStatsAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
 
-      const response = await axios.get("http://localhost:5000/jobs/status", {
+      const response = await axios.get("https://eloquent-nature-production-3df9.up.railway.app/jobs/status", {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

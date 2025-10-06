@@ -59,7 +59,7 @@ export const addEmployerAsync = createAsyncThunk(
       console.log("Extractedxx User ID:", userId);
       const employerPayload = { ...employerData, userId };
       const response = await axios.post(
-        "http://localhost:5000/employer/information",
+        "https://eloquent-nature-production-3df9.up.railway.app/employer/information",
         employerPayload,
         {
           headers: {
@@ -96,7 +96,7 @@ export const fetchEmployerAsync = createAsyncThunk(
       const userId = decodedToken.userId;
       console.log("Extracted User ID2:", userId);
       const response = await axios.get<EmployerResponse>(
-        `http://localhost:5000/employer/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/employer/information/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -131,7 +131,7 @@ export const updateEmployerAsync = createAsyncThunk(
       const decodedToken: DecodedToken = jwtDecode(authToken);
       const userId: number = decodedToken.userId;
       const response = await axios.put(
-        `http://localhost:5000/employer/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/employer/information/${userId}`,
         updatedEmployerData,
         {
           headers: {
@@ -164,7 +164,7 @@ export const deleteEmployerAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
       const response = await axios.delete(
-        `http://localhost:5000/employer/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/employer/information/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -196,7 +196,7 @@ export const fetchAllEmployersAsync = createAsyncThunk(
       }
 
       const response = await axios.get<EmployerListResponse>(
-        "http://localhost:5000/employer/all",
+        "https://eloquent-nature-production-3df9.up.railway.app/employer/all",
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

@@ -60,7 +60,7 @@ export const createCandidateAsync = createAsyncThunk<
       }
 
       const response = await axios.post(
-        "http://localhost:5000/candidate/information",
+        "https://eloquent-nature-production-3df9.up.railway.app/candidate/information",
         candidateFormData,
         {
           headers: {
@@ -98,7 +98,7 @@ export const fetchCandidateAsync = createAsyncThunk(
       const userId = decodedToken.userId;
       console.log("Extracted User ID2:", userId);
       const response = await axios.get<CandidateResponse>(
-        `http://localhost:5000/candidate/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/candidate/information/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -133,7 +133,7 @@ export const updateCandidateAsync = createAsyncThunk(
       const decodedToken: DecodedToken = jwtDecode(authToken);
       const userId: number = decodedToken.userId;
       const response = await axios.put(
-        `http://localhost:5000/candidate/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/candidate/information/${userId}`,
         updatedCandidateData,
         {
           headers: {
@@ -167,7 +167,7 @@ export const deleteCandidateAsync = createAsyncThunk(
         return rejectWithValue("User not authenticated");
       }
       const response = await axios.delete(
-        `http://localhost:5000/candidate/information/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/candidate/information/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -202,7 +202,7 @@ export const fetchCandidateResumeAsync = createAsyncThunk(
       const userId = decodedToken.userId;
 
       const response = await axios.get(
-        `http://localhost:5000/candidate/resume/${userId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/candidate/resume/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -236,7 +236,7 @@ export const fetchAllCandidatesAsync = createAsyncThunk(
       }
 
       const response = await axios.get<ApiResponse<Candidate[]>>(
-        "http://localhost:5000/candidate/all",
+        "https://eloquent-nature-production-3df9.up.railway.app/candidate/all",
         {
           headers: {
             Authorization: `Bearer ${authToken}`,

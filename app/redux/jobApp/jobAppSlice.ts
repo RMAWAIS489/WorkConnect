@@ -69,7 +69,7 @@ export const createJobAppAsync = createAsyncThunk(
   ) => {
     try {
       const response = await axios.post(
-        `http://localhost:5000/jobapplication/apply/${job_id}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobapplication/apply/${job_id}`,
         formData,
         {
           headers: {
@@ -101,7 +101,7 @@ export const fetchJobAppAsync = createAsyncThunk(
     console.log("Auth Token:", authToken);
     try {
       const response = await axios.get(
-        `http://localhost:5000/jobapplication/fetchApplications`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobapplication/fetchApplications`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -138,7 +138,7 @@ export const fetchAppliedJobAppsAsync = createAsyncThunk(
       });
 
       const response = await axios.get(
-        `http://localhost:5000/jobapplication/fetchAppliedApplications`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobapplication/fetchAppliedApplications`,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -176,7 +176,7 @@ export const updateJobAppStatusAsync = createAsyncThunk(
   ) => {
     try {
       const response = await axios.put(
-        `http://localhost:5000/jobapplication/updatestatus/${applicationId}`,
+        `https://eloquent-nature-production-3df9.up.railway.app/jobapplication/updatestatus/${applicationId}`,
         { status },
         {
           headers: {
@@ -207,7 +207,7 @@ export const fetchTotalApplicationsAsync = createAsyncThunk<
   try {
     const authToken = localStorage.getItem("token");
     const response = await axios.get(
-      "http://localhost:5000/jobapplication/all",
+      "https://eloquent-nature-production-3df9.up.railway.app/jobapplication/all",
       {
         headers: {
           Authorization: `Bearer ${authToken}`,
