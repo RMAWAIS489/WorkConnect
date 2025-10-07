@@ -15,12 +15,27 @@ export default function JobListings() {
   const { jobs, loading, error } = useSelector((state: RootState) => state.jobs);
   
 
-  const handleApplyclick=(jobId:number)=>{
-    console.log("Apply clicked");
-    console.log("the specific jobId is:",jobId)
-    router.push(`/pages/candidate/job-applications/${jobId}`)
+  // const handleApplyclick=(jobId:number)=>{
+  //   console.log("Apply clicked");
+  //   console.log("the specific jobId is:",jobId)
+  //   router.push(`/pages/candidate/job-applications/${jobId}`)
 
+  // }
+  const handleApplyclick = (jobId: number) => {
+  console.log("Apply clicked");
+  console.log("the specific jobId is:", jobId);
+
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    // ✅ User is logged in → go to job application page
+    router.push(`/pages/candidate/job-applications/${jobId}`);
+  } else {
+    // ❌ No token → redirect to sign-in page
+    router.push("/pages/auth/signin");
   }
+};
+
   useEffect(() => {
     dispatch(searchJobsAsync({}));
   }, [dispatch]);
