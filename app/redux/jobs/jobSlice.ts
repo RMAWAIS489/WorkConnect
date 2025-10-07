@@ -62,18 +62,32 @@ export const createJobAsync = createAsyncThunk(
     }
   }
 );
+
+
 export const fetchJobsAsync = createAsyncThunk(
   "jobs/fetchJobs",
   async (userId: number | null, { rejectWithValue }) => {
     try {
+      const authToken = localStorage.getItem("token");
+      if (!authToken) {
+        return rejectWithValue("User not authenticated");
+      }
+
+      const decodedToken: DecodedToken = jwtDecode(authToken);
+      console.log("Decoded Token:", decodedToken);
+
       if (!userId) {
-        return rejectWithValue("User ID is missing");
+        return rejectWithValue("User ID is missing in token");
       }
 
       console.log("Extracted User ID:", userId);
-
       const response = await axios.get(
-        `https://eloquent-nature-production-3df9.up.railway.app/jobs/fetch/${userId}`
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/fetch/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       console.log("API Response:", response.data);
@@ -86,43 +100,6 @@ export const fetchJobsAsync = createAsyncThunk(
     }
   }
 );
-
-// export const fetchJobsAsync = createAsyncThunk(
-//   "jobs/fetchJobs",
-//   async (userId: number | null, { rejectWithValue }) => {
-//     try {
-//       const authToken = localStorage.getItem("token");
-//       if (!authToken) {
-//         return rejectWithValue("User not authenticated");
-//       }
-
-//       const decodedToken: DecodedToken = jwtDecode(authToken);
-//       console.log("Decoded Token:", decodedToken);
-
-//       if (!userId) {
-//         return rejectWithValue("User ID is missing in token");
-//       }
-
-//       console.log("Extracted User ID:", userId);
-//       const response = await axios.get(
-//         `https://eloquent-nature-production-3df9.up.railway.app/jobs/fetch/${userId}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${authToken}`,
-//           },
-//         }
-//       );
-
-//       console.log("API Response:", response.data);
-//       return response.data as JobResponse;
-//     } catch (error: unknown) {
-//       if (axios.isAxiosError(error)) {
-//         return rejectWithValue(error.response?.data || "Failed to fetch jobs");
-//       }
-//       return rejectWithValue("Unexpected error occurred");
-//     }
-//   }
-// );
 export const totalActiveJobsAsync = createAsyncThunk(
   "jobs/totalActiveJobs",
   async (userId: number, { rejectWithValue }) => {
@@ -214,44 +191,6 @@ export const deleteJobAsync = createAsyncThunk(
     }
   }
 );
-// export const searchJobsAsync = createAsyncThunk(
-//   "jobs/searchJobs",
-//   async (
-//     { title, location }: { title?: string; location?: string },
-//     { rejectWithValue }
-//   ) => {
-//     try {
-//       const authToken = localStorage.getItem("token");
-//       if (!authToken) {
-//         return rejectWithValue("User not authenticated");
-//       }
-
-//       const queryParams = new URLSearchParams();
-//       if (title) queryParams.append("title", title);
-//       if (location) queryParams.append("location", location);
-
-//       console.log("Searching jobs with:", { title, location });
-
-//       const response = await axios.get(
-//         `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`,
-//         {
-//           headers: {
-//             Authorization: `Bearer ${authToken}`,
-//           },
-//         }
-//       );
-
-//       console.log("API Response:", response.data);
-
-//       return response.data as JobResponse;
-//     } catch (error: unknown) {
-//       if (axios.isAxiosError(error)) {
-//         return rejectWithValue(error.response?.data || "Failed to search jobs");
-//       }
-//       return rejectWithValue("Failed to search jobs");
-//     }
-//   }
-// );
 export const searchJobsAsync = createAsyncThunk(
   "jobs/searchJobs",
   async (
@@ -259,6 +198,11 @@ export const searchJobsAsync = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      const authToken = localStorage.getItem("token");
+      if (!authToken) {
+        return rejectWithValue("User not authenticated");
+      }
+
       const queryParams = new URLSearchParams();
       if (title) queryParams.append("title", title);
       if (location) queryParams.append("location", location);
@@ -266,7 +210,12 @@ export const searchJobsAsync = createAsyncThunk(
       console.log("Searching jobs with:", { title, location });
 
       const response = await axios.get(
-        `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
       );
 
       console.log("API Response:", response.data);
@@ -280,6 +229,7 @@ export const searchJobsAsync = createAsyncThunk(
     }
   }
 );
+
 
 
 export const updateEmploymentStatusAsync = createAsyncThunk(
