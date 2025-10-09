@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchAllJobsAsync } from "@/app/redux/jobs/jobSlice";
+import { fetchAllJobsAsync} from "@/app/redux/jobs/jobSlice";
 import { AppDispatch, RootState } from "@/app/redux/store";
 import { FaMapMarkerAlt, FaBriefcase, FaDollarSign } from "react-icons/fa";
 import { useRouter } from "next/navigation";
@@ -21,10 +21,10 @@ export default function JobListings() {
   const token = localStorage.getItem("token");
 
   if (token) {
-    // ✅ If logged in → go to job application page
+ 
     router.push(`/pages/candidate/job-applications/${jobId}`);
   } else {
-    // 🚫 If not logged in → go to login page
+  
     router.push("/pages/auth/signin");
   }
 };

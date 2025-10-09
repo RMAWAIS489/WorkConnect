@@ -218,11 +218,6 @@ export const searchJobsAsync = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const authToken = localStorage.getItem("token");
-      if (!authToken) {
-        return rejectWithValue("User not authenticated");
-      }
-
       const queryParams = new URLSearchParams();
       if (title) queryParams.append("title", title);
       if (location) queryParams.append("location", location);
@@ -230,12 +225,7 @@ export const searchJobsAsync = createAsyncThunk(
       console.log("Searching jobs with:", { title, location });
 
       const response = await axios.get(
-        `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`,
-        {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        }
+        `https://eloquent-nature-production-3df9.up.railway.app/jobs/all/data?${queryParams.toString()}`
       );
 
       console.log("API Response:", response.data);
@@ -249,6 +239,7 @@ export const searchJobsAsync = createAsyncThunk(
     }
   }
 );
+
 
 
 
