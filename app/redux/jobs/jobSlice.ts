@@ -62,6 +62,7 @@ export const createJobAsync = createAsyncThunk(
     }
   }
 );
+
 export const fetchAllJobsAsync = createAsyncThunk(
   "jobs/fetchAllJobs",
   async (_, { rejectWithValue }) => {
@@ -344,6 +345,20 @@ const jobSlice = createSlice({
       .addCase(createJobAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(fetchAllJobsAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllJobsAsync.fulfilled, (state, action) => {
+        console.log("Fetched Jobs Payload:", action.payload);
+        state.loading = false;
+        state.jobs = action.payload.data;
+      })
+      .addCase(fetchAllJobsAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.jobs = [];
       })
       .addCase(fetchJobsAsync.pending, (state) => {
         state.loading = true;

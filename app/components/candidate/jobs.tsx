@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchAllJobsAsync, searchJobsAsync } from "@/app/redux/jobs/jobSlice";
+import { fetchAllJobsAsync } from "@/app/redux/jobs/jobSlice";
 import { AppDispatch, RootState } from "@/app/redux/store";
 import { FaMapMarkerAlt, FaBriefcase, FaDollarSign } from "react-icons/fa";
 import { useRouter } from "next/navigation";
