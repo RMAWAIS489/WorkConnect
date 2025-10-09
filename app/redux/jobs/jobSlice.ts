@@ -62,6 +62,25 @@ export const createJobAsync = createAsyncThunk(
     }
   }
 );
+export const fetchAllJobsAsync = createAsyncThunk(
+  "jobs/fetchAllJobs",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(
+        "https://eloquent-nature-production-3df9.up.railway.app/jobs/all"
+      );
+
+      console.log("Fetched All Jobs:", response.data);
+
+      return response.data as JobResponse;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data || "Failed to fetch jobs");
+      }
+      return rejectWithValue("Unexpected error occurred");
+    }
+  }
+);
 
 
 export const fetchJobsAsync = createAsyncThunk(
